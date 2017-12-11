@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>随机字符串</title>
+</head>
+
+<body>
+    <div id="msg" style="width: 400px;margin: 50px auto;">
+        <label for="">长度：
+            <input class="strLen" type="number" min="0" max="20">（默认0~20内随机设定一值）
+        </label>
+        <p>限制：(默认ASCII码32~126内任意字符)</p>
+        <p>
+            <label for="">仅包含数字、大小写：
+                <input type="checkbox" name="strCase" class="valcase" id="" value="valcase">
+            </label>
+        </p>
+        <label for="">包含大写：
+            <input type="checkbox" name="strCase" class="upcase" id="" value="upcase">
+        </label>
+        <label for="">包含小写：
+            <input type="checkbox" name="strCase" class="lowcase" id="" value="lowcase">
+        </label>
+        <label for="">包含数字：
+            <input type="checkbox" name="strCase" class="numcase" id="" value="numcase">
+        </label>
+        <p>
+            <button class="subBtn" style="width: 80px;heigth">生成</button>
+        </p>
+        <p>输出：<span class="resStr" style="color: #d82d2d;"></span></p>
+    </div>
+    <script src="index.js"></script>
+</body>
+
+</html>
