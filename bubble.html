@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Bao 气泡</title>
+</head>
+
+<body style="margin: 0;padding: 0;">
+    <canvas id="canvas" style="display: block;margin: 20px auto;border:1px solid #eee;"></canvas>
+    <script>
+        window.onload = function () {
+            var canvas = document.getElementById("canvas");
+            var ctx = canvas.getContext("2d");
+            var blueImage = new Image();
+            var redImage = new Image();
+            var bubbles = [];
+            canvas.width = 1000;
+            canvas.height = 600;
+            blueImage.src = "./蓝泡.png";
+            redImage.src = "./红泡.png";
+
+            function BlueBubble(posLeft, posTop, speedX, speedY, size) {
+                this.posLeft = posLeft;
+                this.posTop = posTop;
+                this.speedX = speedX;
+                this.speedY = speedY;
+                this.size = size;
+                this.img = blueImage;
+            }
+            BlueBubble.prototype.draw = function () {
+                ctx.lineWidth = 1;
+                ctx.strokeStyle = "transparent";
+                ctx.beginPath();
+                ctx.arc(this.posLeft, this.posTop, this.size, 0, 2 * Math.PI);
+                ctx.closePath();
+                ctx.stroke();
+                ctx.drawImage(blueImage, this.posLeft - this.size, this.posTop - this.size, this.size * 2, this.size * 2);
+            };
+            BlueBubble.prototype.run = function () {
+                if (this.posLeft >= 1000) {
+                    this.posLeft -= 1000;
+                }
+                if (this.posTop >= 600) {
+                    this.posTop -= 600;
+                }
+                if (this.posLeft <= 0) {
+                    this.posLeft += 1000;
+                }
+                if (this.posTop <= 0) {
+                    this.posTop += 600;
+                }
+                this.posLeft += this.speedX;
+                this.posTop += this.speedY;
+            };
+            BlueBubble.prototype.collisionDetect = function () {
+                var i = 0;
+                for (i = 0; i < bubbles.length; i++) {
+                    if (this !== bubbles[i]) {
+                        var distanceX = this.posLeft - bubbles[i].posLeft;
+                        var distanceY = this.posTop - bubbles[i].posTop;
+                        var distance = Math.sqrt(distanceX * distanceX + distanceY * distanceY);
+                        var minDist = this.size + bubbles[i].size;
+                        if (distance <= minDist) {
+                            this.size = random(20, 60);
+                            // this.speedX = random(-8, 8);
+                            // this.speedY = random(-8, 8);
+                            bubbles[i].size = random(20, 60);
+                            // bubbles[i].speedX = random(-8, 8);
+                            // bubbles[i].speedY = random(-8, 8);
+                        }
+                    }
+                }
+            };
+            function RedBubble(posLeft, posTop) {
+                BlueBubble.call(this, posLeft, posTop);
+                this.size = 50;
+            }
+
+            RedBubble.prototype = Object.create(BlueBubble.prototype);
+            RedBubble.prototype.constructor = RedBubble;
+
+            RedBubble.prototype.draw = function () {
+                ctx.beginPath();
+                ctx.strokeStyle = "transparent";
+                ctx.lineWidth = 3;
+                ctx.arc(this.posLeft, this.posTop, this.size, 0, 2 * Math.PI);
+                ctx.stroke();
+                ctx.drawImage(redImage, this.posLeft - this.size, this.posTop - this.size, this.size * 2, this.size * 2);
+            };
+
+            RedBubble.prototype.collisionDetect = function () {
+                var i = 0;
+                for (i = 0; i < bubbles.length; i++) {
+                    if (this !== bubbles[i]) {
+                        var distanceX = Math.abs(this.posLeft - bubbles[i].posLeft);
+                        var distanceY = Math.abs(this.posTop - bubbles[i].posTop);
+                        var distance = Math.sqrt(distanceX * distanceX + distanceY * distanceY);
+                        var minDist = this.size + bubbles[i].size;
+                        if (distance <= minDist - 10) {
+                            bubbles[i].speedY = - bubbles[i].speedY;
+                            bubbles[i].speedX = - bubbles[i].speedX;
+                            bubbles[i].posLeft = bubbles[i].posLeft < this.posLeft ? this.posLeft - minDist * distanceX / distance : this.posLeft + minDist * distanceX / distance;
+                            bubbles[i].posTop = bubbles[i].posTop < this.posTop ? this.posTop - minDist * distanceY / distance : this.posTop + minDist * distanceY / distance;
+                        }
+                    }
+                }
+            };
+
+
+
+            function random(min, max) {
+                return Math.floor(Math.random() * (max - min)) + min;
+            }
+
+            var redBubble = new RedBubble(500, 300, true);
+
+
+            function init() {
+                ctx.fillRect(0, 0, 1000, 600);
+                ctx.fillStyle = "#eee";
+                while (bubbles.length <= random(10, 20)) {
+                    var blueBubble = new BlueBubble(random(0, 1000), random(0, 600), random(-10, 10), random(-10, 10), random(
+                        20, 60));
+
+                    bubbles.push(blueBubble);
+
+                }
+                for (i = 0; i < bubbles.length; i++) {
+                    bubbles[i].draw();
+                    bubbles[i].run();
+                    bubbles[i].collisionDetect();
+                }
+                redBubble.draw();
+                redBubble.collisionDetect();
+                requestAnimationFrame(init);
+            }
+
+            canvas.addEventListener('mousemove', function (e) {
+                    redBubble.posLeft = e.offsetX;
+                    redBubble.posTop = e.offsetY;
+                    redBubble.draw();
+            });
+
+            canvas.addEventListener('mouseout', function (e) {
+                window.cancelAnimationFrame(redBubble.draw);
+            });
+
+            init();
+
+        };
+    </script>
+</body>
+
+</html>
